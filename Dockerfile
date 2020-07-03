@@ -53,9 +53,9 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/*
 
 # grab tini for signal processing and zombie killing
-ENV TINI_VERSION v0.18.0
+ENV TINI_VERSION v0.19.0
 RUN set -eux; \
-    apt-get update; \
+    apt-get update -y; \
     apt-get install -y --no-install-recommends wget ca-certificates; \
     rm -rf /var/lib/apt/lists/*; \
     wget -O /usr/local/bin/tini "https://github.com/krallin/tini/releases/download/$TINI_VERSION/tini"; \
