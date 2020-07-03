@@ -1,4 +1,4 @@
-ARG BASE=ubuntu:18.04
+ARG BASE=ubuntu:20.04
 FROM ${BASE}
 
 LABEL maintainer="https://github.com/dmrub"

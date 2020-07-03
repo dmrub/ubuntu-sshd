@@ -17,7 +17,7 @@ message() {
     echo "$@"
 }
 
-IMAGE_BASE=ubuntu:18.04
+IMAGE_BASE=ubuntu:20.04
 IMAGE_PREFIX=${IMAGE_PREFIX:-ubuntu-sshd}
 IMAGE_TAG=${IMAGE_TAG:-latest}
 IMAGE_NAME=${IMAGE_PREFIX}:${IMAGE_TAG}
