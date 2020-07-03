@@ -15,7 +15,7 @@ ENV OPENSSH_PORT=22 \
     OPENSSH_HOME="/home/ssh" \
     OPENSSH_SHELL="/bin/bash" \
     OPENSSH_RUN="" \
-    OPENSSH_ALLOW_TCP_FORWARDING="remote"
+    OPENSSH_ALLOW_TCP_FORWARDING="all"
 
 RUN set -ex; \
     if ! command -v gpg > /dev/null; then \
