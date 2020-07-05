@@ -19,6 +19,7 @@ ENV OPENSSH_PORT=22 \
 
 RUN set -ex; \
     if ! command -v gpg > /dev/null; then \
+        export DEBIAN_FRONTEND=noninteractive; \
         apt-get update; \
         apt-get install -y --no-install-recommends \
             gnupg \
@@ -30,6 +31,7 @@ RUN set -ex; \
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN set -eux; \
+    export DEBIAN_FRONTEND=noninteractive; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
       openssh-server rsync augeas-tools; \
@@ -55,6 +57,7 @@ RUN set -eux; \
 # grab tini for signal processing and zombie killing
 ENV TINI_VERSION v0.19.0
 RUN set -eux; \
+    export DEBIAN_FRONTEND=noninteractive; \
     apt-get update -y; \
     apt-get install -y --no-install-recommends wget ca-certificates; \
     rm -rf /var/lib/apt/lists/*; \

@@ -27,6 +27,7 @@ usage() {
     echo
     echo "$0 [options]"
     echo "options:"
+    echo "      --buildah              Use buildah instead of docker"
     echo "  -b, --base                 Base container (default: ${IMAGE_BASE})"
     echo "  -t, --tag=                 Image name and optional tag"
     echo "                             (default: ${IMAGE_NAME})"
@@ -34,8 +35,14 @@ usage() {
     echo "      --help                 Display this help and exit"
 }
 
+USE_BUILDAH=
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --buildah)
+            USE_BUILDAH=true
+            shift
+            ;;
         -b|--base)
             IMAGE_BASE="$2"
             shift 2
@@ -73,14 +80,24 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+echo "USE_BUILDAH:       $USE_BUILDAH"
 echo "IMAGE_BASE:        $IMAGE_BASE"
 echo "IMAGE_NAME:        $IMAGE_NAME"
 echo "NO_CACHE:          $NO_CACHE"
 
-set -x
-docker build $NO_CACHE \
-             --build-arg "BASE=$IMAGE_BASE" \
-             -t "${IMAGE_NAME}" \
-             "$THIS_DIR"
-set +x
+if [[ "$USE_BUILDAH" = "true" ]]; then
+    set -x
+    buildah bud $NO_CACHE \
+                --build-arg "BASE=$IMAGE_BASE" \
+                -t "${IMAGE_NAME}" \
+                "$THIS_DIR"
+    set +x
+else
+    set -x
+    docker build $NO_CACHE \
+                --build-arg "BASE=$IMAGE_BASE" \
+                -t "${IMAGE_NAME}" \
+                "$THIS_DIR"
+    set +x
+fi
 echo "Successfully built docker image $IMAGE_NAME"
