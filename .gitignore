@@ -5,3 +5,4 @@
 /backup
 /keys
 /root-keys
+/docker-private-config.sh

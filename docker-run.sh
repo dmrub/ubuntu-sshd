@@ -1,15 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eo pipefail
 
-THIS_DIR=$( (cd "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P) )
-
-IMAGE_PREFIX=${IMAGE_PREFIX:-ubuntu-sshd}
-IMAGE_TAG=${IMAGE_TAG:-latest}
-IMAGE_NAME=${IMAGE_PREFIX}:${IMAGE_TAG}
+THIS_DIR=$( cd "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P )
 
 error() {
-    echo >&2 "* [entrypoint.sh] Error: $*"
+    echo >&2 "* [docker-run] Error: $*"
 }
 
 fatal() {
@@ -43,34 +39,44 @@ usage() {
     echo "$0 [options]"
     echo "options:"
     echo "      --podman               Use podman instead of docker"
-    echo "  -b, --base                 Base container (default: ${IMAGE_BASE})"
+    echo "  -b, --base                 Base container (default: ${BASE_IMAGE})"
     echo "  -t, --tag=                 Image name and optional tag"
     echo "                             (default: ${IMAGE_NAME})"
     echo "      --help                 Display this help and exit"
 }
 
+# shellcheck source=docker-config.sh
+source "$THIS_DIR/docker-config.sh" || \
+    fatal "Could not load configuration from $THIS_DIR/docker-config.sh"
+
 USE_PODMAN=
+
+ARGS=()
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --net=*)
+            ARGS+=("$1")
+            shift
+            ;;
         --podman)
             USE_PODMAN=true
             shift
             ;;
         -b|--base)
-            IMAGE_BASE="$2"
+            BASE_IMAGE="$2"
             shift 2
             ;;
         --base=*)
-            IMAGE_BASE="${1#*=}"
+            BASE_IMAGE="${1#*=}"
             shift
             ;;
         -t|--tag)
-            IMAGE_NAME="$2"
+            IMAGE="$2"
             shift 2
             ;;
         --tag=*)
-            IMAGE_NAME="${1#*=}"
+            IMAGE="${1#*=}"
             shift
             ;;
         --help)
@@ -90,12 +96,12 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+echo "Image Configuration:"
 echo "USE_PODMAN:        $USE_PODMAN"
-echo "IMAGE_BASE:        $IMAGE_BASE"
 echo "IMAGE_NAME:        $IMAGE_NAME"
+echo "IMAGE:             $IMAGE"
 
 cd "$THIS_DIR"
-ARGS=()
 OPENSSH_AUTHORIZED_KEYS="$(read-keys keys)"
 OPENSSH_ROOT_AUTHORIZED_KEYS="$(read-keys root-keys)"
 
@@ -104,13 +110,13 @@ if [[ "$USE_PODMAN" = "true" ]]; then
     podman run -p 2222:22 "${ARGS[@]}" \
         -e OPENSSH_AUTHORIZED_KEYS="$OPENSSH_AUTHORIZED_KEYS" \
         -e OPENSSH_ROOT_AUTHORIZED_KEYS="$OPENSSH_ROOT_AUTHORIZED_KEYS" \
-        --name="$IMAGE_PREFIX" \
-        --rm -ti "${IMAGE_NAME}" "$@"
+        --name="$IMAGE_NAME" \
+        --rm -ti "${IMAGE}" "$@"
 else
     set -xe
     docker run -p 2222:22 "${ARGS[@]}" \
         -e OPENSSH_AUTHORIZED_KEYS="$OPENSSH_AUTHORIZED_KEYS" \
         -e OPENSSH_ROOT_AUTHORIZED_KEYS="$OPENSSH_ROOT_AUTHORIZED_KEYS" \
-        --name="$IMAGE_PREFIX" \
-        --rm -ti "${IMAGE_NAME}" "$@"
+        --name="$IMAGE_NAME" \
+        --rm -ti "${IMAGE}" "$@"
 fi

@@ -5,3 +5,9 @@
 **/.gitignore
 **/.gitmodules
 Dockerfile*
+LICENSE
+README.md
+/docker-build.sh
+/docker-config.sh
+/docker-print-info.sh
+/docker-private-config.sh

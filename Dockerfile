@@ -1,6 +1,8 @@
-ARG BASE=ubuntu:20.04
-FROM ${BASE}
+ARG BASE_IMAGE=ubuntu:22.04
+FROM ${BASE_IMAGE}
 
+LABEL org.opencontainers.image.authors="Dmitri Rubinstein"
+LABEL org.opencontainers.image.source="https://github.com/dmrub/ubuntu-sshd"
 LABEL maintainer="https://github.com/dmrub"
 
 ENV OPENSSH_PORT=22 \
